@@ -15,9 +15,13 @@ df['price'] = df['price'].astype(float).round(2)
 df['highSinceStart'] = df['price'].cummax()
 df.loc[df.duplicated(subset=['highSinceStart']), 'highSinceStart'] = np.nan
 df['highSinceStart'] = df.apply(lambda x: True if x['price'] == x['highSinceStart'] else False, axis=1)
-df.loc[0,'highSinceStart'] = np.nan
+df.loc[0,'highSinceStart'] = 'na'
+df['lowSinceStart'] = df[1:]['price'].cummin()
+df.loc[df.duplicated(subset=['lowSinceStart']), 'lowSinceStart'] = np.nan
+df['lowSinceStart'] = df.apply(lambda x: True if x['price'] == x['lowSinceStart'] else False, axis=1)
+df.loc[0,'lowSinceStart'] = 'na'
 df['change'] = df['price'].diff()
-df['direction'] = df.apply(lambda x: 'up' if x['change'] > 0 else ('down' if x['change'] < 0 else (np.nan if str(x['change']) == 'nan' else 'same')), axis=1)
+df['direction'] = df.apply(lambda x: 'up' if x['change'] > 0 else ('down' if x['change'] < 0 else ('na' if str(x['change']) == 'nan' else 'same')), axis=1)
 df['dayOfWeek'] = [datetime.strptime(x, '%Y-%m-%dT%H:%M:%S').strftime('%A') for x in df['date']]
 df.drop(columns=['timestamp'], inplace=True)
 df.to_json('problem1.json', orient='records')
